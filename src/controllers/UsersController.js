@@ -55,7 +55,10 @@ class UsersController {
       }
 
       const data = {
-        user: userByEmail.email,
+        user: {
+          email: userByEmail.email,
+          name: userByEmail.name,
+        },
         token: jwt.sign({ userByEmail }, "my_secret_key"),
       };
 
