@@ -6,11 +6,11 @@ const usersList = JSON.parse(fs.readFileSync("src/data/users.json"));
 class UsersController {
   signUp(req, res) {
     try {
-      const { email, password } = req.body;
+      const { name, email, password } = req.body;
 
       const userByEmail = usersList.find((user) => user.email === email);
 
-      if (!!userByEmail.length) {
+      if (!!userByEmail) {
         return res.status(StatusCodes.BAD_REQUEST).json({
           message: "E-mail já está cadastrado",
         });
@@ -18,12 +18,17 @@ class UsersController {
 
       fs.writeFileSync(
         "src/data/users.json",
-        JSON.stringfy([...usersList, { email, password }])
+        JSON.stringify([...usersList, { name, email, password }])
       );
 
-      return res.status(StatusCodes.OK).json({
-        message: "Usuário cadastrado com sucesso!",
-      });
+      const data = {
+        user: {
+          name,
+          email,
+        },
+        token: jwt.sign({ userByEmail }, "my_secret_key"),
+      };
+      return res.status(StatusCodes.OK).json(data);
     } catch (error) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         message: "Erro na função de cadastro",
